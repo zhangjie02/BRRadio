@@ -1,0 +1,177 @@
+package com.example.brradio;
+
+import java.io.IOException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
+import android.content.res.Configuration;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnErrorListener;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.Menu;
+
+import com.spoledge.aacdecoder.AACPlayer;
+
+
+public class MainActivity extends FragmentActivity implements ActionBar.TabListener, OnErrorListener, OnPreparedListener {
+
+	//http://stackoverflow.com/questions/9244361/android-radio-streaming-app-crashes-when-you-press-pause-or-stop-at-the-moment-y
+	
+	//http://code.google.com/p/aacdecoder-android/
+
+	public MediaPlayer mediaPlayer;
+	public boolean mediaPlayerPrepared;
+	
+	
+	
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        setContentView(R.layout.activity_main);
+
+
+    	mediaPlayerPrepared = false;
+
+        /*******************************************************************************
+         * 	The following network protocols are supported for audio and video playback:
+
+        	RTSP (RTP, SDP)
+        	HTTP/HTTPS progressive streaming
+        	HTTP/HTTPS live streaming draft protocol:
+        		MPEG-2 TS media files only
+        		Protocol version 3 (Android 4.0 and above)
+        		Protocol version 2 (Android 3.x)
+        		Not supported before Android 3.0
+         */
+        
+        // audio/aacp streaming is not supported directly
+        //String url = "http://midiaserver.tvcultura.com.br:8001";
+    	
+    	AACPlayer aacPlayer = new AACPlayer();
+    	aacPlayer.playAsync( "http://midiaserver.tvcultura.com.br:8001" );
+    	/*
+        String url = "http://67.228.135.41:8124";
+		mediaPlayer = new MediaPlayer();
+		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+		mediaPlayer.setOnErrorListener(this);
+		mediaPlayer.setOnPreparedListener(this);
+	    
+	    try {
+	    	mediaPlayer.setDataSource(url); 
+	    	mediaPlayer.prepareAsync();
+	    	Log.d("AAA", "after prepare");
+	    } 
+	    catch (IOException e) {}
+	    catch (IllegalArgumentException e) {} 
+	    catch (IllegalStateException e) {}
+        */
+        
+		// Set up the action bar to show tabs.
+		final ActionBar actionBar = getActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+		// For each of the sections in the app, add a tab to the action bar.
+		actionBar.addTab(actionBar.newTab().setText(R.string.title_section1).setTabListener(this));
+		actionBar.addTab(actionBar.newTab().setText(R.string.title_section2).setTabListener(this));
+		actionBar.addTab(actionBar.newTab().setText(R.string.title_section3).setTabListener(this));
+    }
+    
+    @Override
+	public void onPrepared(MediaPlayer mp) {
+		mediaPlayerPrepared = true;
+		mp.start();
+		
+		if (getActionBar().getSelectedNavigationIndex() == 0)
+			((RadioFrag)getSupportFragmentManager().findFragmentById(R.id.container)).refreshPlayerUI();
+	}
+    
+
+	@Override
+	public boolean onError(MediaPlayer mp, int what, int extra) {
+		Log.d("AAA", "Error : " + what + " : " + extra);
+		return false;
+	}
+ 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+	  super.onConfigurationChanged(newConfig);
+	  //setContentView(R.layout.myLayout);
+	  //enlever commentaire si on veux utiliser un autre layout
+	}
+ 
+	
+	
+	
+	/**
+	 * The serialization (saved instance state) Bundle key representing the
+	 * current tab position.
+	 */
+	private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
+
+	
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		// Restore the previously serialized current tab position.
+		if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
+			getActionBar().setSelectedNavigationItem(
+					savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		// Serialize the current tab position.
+		outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar().getSelectedNavigationIndex());
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.activity_main, menu);
+		return true;
+	}
+	
+
+	@Override
+	public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+		// When the given tab is selected, show the tab contents in the
+		// container view.
+		
+		/*
+		Fragment fragment = new DummySectionFragment();
+		Bundle args = new Bundle();
+		args.putInt(DummySectionFragment.ARG_SECTION_NUMBER,
+				tab.getPosition() + 1);
+		fragment.setArguments(args);
+		getSupportFragmentManager().beginTransaction()
+				.replace(R.id.container, fragment).commit();
+				
+		*/
+	
+		
+		switch (tab.getPosition())
+		{
+			case 0: getSupportFragmentManager().beginTransaction().replace(R.id.container, new RadioFrag()).commit(); break;
+			case 1: getSupportFragmentManager().beginTransaction().replace(R.id.container, new SiteFrag()).commit(); break;
+			case 2: getSupportFragmentManager().beginTransaction().replace(R.id.container, new NewsFrag()).commit(); break;
+		default:
+		}
+		
+	}
+
+	@Override
+	public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+	}
+
+	@Override
+	public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+	}
+}

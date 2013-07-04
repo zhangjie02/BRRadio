@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BRRadio</string>
+    <string name="title_section5">Twitter</string>
+    <string name="title_section4">Facebook</string>
+    <string name="title_section3">Teste</string>
+    <string name="title_section2">Site</string>
+    <string name="title_section1">Radio</string>
+    <string name="menu_settings">Settings</string>
+	<string name="btPlay">Play</string>
+	<string name="btStop">Stop</string>
+	<string name="app_id">148145148666869</string>
+	<string name="publish">Publish</string>
+	<string name="tw_key">unXOKeLGei0L29s9vylQ</string>
+	<string name="tw_secret">TgBKzjZlXhh6fs7fRqP7xUOrecD8wnWTHNhcN9iek</string>
+</resources>
